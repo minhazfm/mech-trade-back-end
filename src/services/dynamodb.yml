@@ -1,0 +1,40 @@
+Resources:
+  # DynamoDB - Rooms
+  # RoomsDynamoDbTable:
+  #   Type: AWS::DynamoDB::Table
+  #   DeletionPolicy: Delete
+  #   Properties:
+  #     AttributeDefinitions:
+  #       - AttributeName: roomId
+  #         AttributeType: S
+  #     BillingMode: PAY_PER_REQUEST
+  #     KeySchema:
+  #       - AttributeName: roomId
+  #         KeyType: HASH
+  #     SSESpecification:
+  #       SSEEnabled: true
+  #     TableName: ${self:provider.environment.DYNAMODB_ROOMS_TABLE}
+  # DynamoDB - Users
+  UsersDynamoDbTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Delete
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: itemId
+          AttributeType: S
+        - AttributeName: userId
+          AttributeType: S
+      BillingMode: PAY_PER_REQUEST
+      GlobalSecondaryIndexes:
+        - IndexName: ${self:provider.environment.DYNAMODB_USERS_TYPE_GSI}
+          KeySchema:
+            - AttributeName: itemId
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+      KeySchema:
+        - AttributeName: userId
+          KeyType: HASH
+      SSESpecification:
+        SSEEnabled: true
+      TableName: ${self:provider.environment.DYNAMODB_USERS_TABLE}

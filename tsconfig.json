@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "baseUrl": "./",
     "lib": ["es2017"],
     "removeComments": true,
     "moduleResolution": "node",
@@ -7,7 +8,16 @@
     "noUnusedParameters": true,
     "sourceMap": true,
     "target": "es2017",
-    "outDir": "lib"
+    "outDir": "lib",
+    "paths": {
+      "@app/*": ["src/*"],
+      "@interfaces/*": ["src/interfaces/*"],
+      "@libs/*": ["src/libs/*"],
+      "@shared/*": ["src/shared/*"]
+    },
+    "typeRoots": [
+      "node_modules/@types"
+    ]
   },
   "include": ["./**/*.ts"],
   "exclude": [

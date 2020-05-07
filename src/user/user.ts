@@ -1,0 +1,1 @@
+export const getCity: ApiHandler = controller.getCity;

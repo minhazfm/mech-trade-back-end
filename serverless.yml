@@ -1,23 +1,51 @@
 service: mech-trade-back-end
 
-frameworkVersion: "1.69.0"
+frameworkVersion: ">=1.2.0 <2.0.0"
 
 custom:
+  corsOrigin: '*'
+  dynamodb:
+    stages:
+      - ${self:provider.stage}
+    start:
+      port: 8000
+      inMemory: true
+      migrate: true
+    migration:
+      dir: offline/migrations
   webpack:
     webpackConfig: ./webpack.config.js
     includeModules: true
 
 # Add the serverless-webpack plugin
 plugins:
+  - serverless-dynamodb-local
+  - serverless-offline
+  - serverless-pseudo-parameters
   - serverless-webpack
 
 provider:
-  name: aws
-  runtime: nodejs12.x
   apiGateway:
     minimumCompressionSize: 1024 # Enable gzip compression for responses > 1 KB
   environment:
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
+    COGNITO_USER_POOL:
+      Ref: CognitoUserPool
+    COGNITO_USER_POOL_CLIENT:
+      Ref: CognitoUserPoolClient
+    CORS_ORIGIN: ${self:custom.corsOrigin}
+    ENVIRONMENT: ${opt:stage, self:provider.stage}
+    DYNAMODB_USERS_TABLE: ${self:service}-users-table-${opt:stage, self:provider.stage}
+    DYNAMODB_USERS_TYPE_GSI: ${self:service}-users-table-type-gsi-${opt:stage, self:provider.stage}
+  name: aws
+  runtime: nodejs12.x
+  region: us-east-2
+  stage: dev
+
+package:
+  individually: true
+  exclude:
+    - "node_modules/**"
 
 functions:
   hello:
@@ -26,3 +54,11 @@ functions:
       - http:
           method: get
           path: hello
+
+resources:
+  # Cognito
+  - ${file(services/cognito.yml)}
+  # DynamoDB
+  - ${file(services/dynamodb.yml)}
+  # S3
+  # - ${file(services/s3.yml)}
