@@ -1,4 +1,4 @@
-import { CONSTANTS } from '@shared/constants';
+import { CONSTANTS } from '../shared/constants';
 import { DynamoDB } from 'aws-sdk';
 import { DocumentClient } from 'aws-sdk/clients/dynamodb';
 

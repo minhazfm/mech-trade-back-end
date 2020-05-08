@@ -1,5 +1,5 @@
 import { ApiCallback, ApiContext, ApiEvent, ApiHandler, CreateUser } from '@interfaces/interfaces';
-import { ResponseBuilder } from '@libs/response-builder.lib';
+import { ResponseBuilder } from '../shared/response-builder';
 import { UserService } from './user.service'
 
 export class UserController {

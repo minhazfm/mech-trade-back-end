@@ -12,7 +12,6 @@
     "paths": {
       "@app/*": ["src/*"],
       "@interfaces/*": ["src/interfaces/*"],
-      "@libs/*": ["src/libs/*"],
       "@shared/*": ["src/shared/*"]
     },
     "typeRoots": [

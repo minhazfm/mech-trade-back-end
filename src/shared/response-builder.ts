@@ -55,8 +55,8 @@ export class ResponseBuilder {
     }
 
     public static serverError(error: Error, callback: ApiCallback): void {
-        let modifiedCode: string = error instanceof AWSError ? error.code : ErrorCode.GeneralError;
-        const errorResult: InternalServerErrorResult = new InternalServerErrorResult(modifiedCode, error.message);
+        // let modifiedCode: string = error instanceof AWSError ? error.code : ErrorCode.GeneralError;
+        const errorResult: InternalServerErrorResult = new InternalServerErrorResult(ErrorCode.GeneralError, error.message);
         ResponseBuilder._returnAs<InternalServerErrorResult>(errorResult, HttpStatusCode.InternalServerError, callback);
     }
 

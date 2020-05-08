@@ -1,3 +1,3 @@
 export {
-  createUser as createUserHandler
+  createUser
 } from './user/user';

@@ -1,6 +1,6 @@
-import { dynamodb } from '@app/libs/dynamo-db.lib';
+import { dynamodb } from '../shared/dynamo-db';
 import { CreateUser } from '@interfaces/interfaces';
-import { CONSTANTS } from '@shared/constants';
+import { CONSTANTS } from '../shared/constants';
 
 export class UserService {
 
