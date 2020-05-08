@@ -8,17 +8,10 @@ export class UserService {
 
     }
 
-    async createUser(user: CreateUser) {
+    public async putUser(user: CreateUser) {
         const userParams = {
             TableName: CONSTANTS.DYNAMODB_USERS_TABLE ?? '',
-            Item: {
-                createdAt: Date.now(),
-                isAvailable: user.isAvailable,
-                isOnline: user.isOnline,
-                name: user.isAvailable,
-                userId: user.userId
-                // userId: event.requestContext.identity.cognitoIdentityId
-            }
+            Item: user
         };
 
         return await dynamodb.putItem(userParams);
