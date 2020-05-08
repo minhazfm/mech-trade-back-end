@@ -1,3 +1,23 @@
+# Distribution / packaging
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+jspm_packages/
+lib/
+lib64/
+node_modules/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
 # IDEs and editors
 /.idea
 .project
@@ -15,16 +35,37 @@
 !.vscode/extensions.json
 .history/*
 
-# package directories
-node_modules
-jspm_packages
-
 # Serverless directories
+.dynamodb
 .serverless
-
-# System Files
-.DS_Store
-Thumbs.db
-
-# Webpack directories
 .webpack
+offline/
+
+### macOS ###
+# General
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Icon must end with two \r
+Icon
+
+# Thumbnails
+._*
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+.env
