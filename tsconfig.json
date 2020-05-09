@@ -10,9 +10,7 @@
     "target": "es2017",
     "outDir": "lib",
     "paths": {
-      "@app/*": ["src/*"],
-      "@interfaces/*": ["src/interfaces/*"],
-      "@shared/*": ["src/shared/*"]
+      "@app/*": ["src/*"]
     },
     "typeRoots": [
       "node_modules/@types"

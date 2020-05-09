@@ -1,19 +1,19 @@
 Resources:
-  # DynamoDB - Rooms
-  # RoomsDynamoDbTable:
-  #   Type: AWS::DynamoDB::Table
-  #   DeletionPolicy: Delete
-  #   Properties:
-  #     AttributeDefinitions:
-  #       - AttributeName: roomId
-  #         AttributeType: S
-  #     BillingMode: PAY_PER_REQUEST
-  #     KeySchema:
-  #       - AttributeName: roomId
-  #         KeyType: HASH
-  #     SSESpecification:
-  #       SSEEnabled: true
-  #     TableName: ${self:provider.environment.DYNAMODB_ROOMS_TABLE}
+  # DynamoDB - Listings
+  ListingsDynamoDbTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Delete
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: listingId
+          AttributeType: S
+      BillingMode: PAY_PER_REQUEST
+      KeySchema:
+        - AttributeName: listingId
+          KeyType: HASH
+      SSESpecification:
+        SSEEnabled: true
+      TableName: ${self:provider.environment.DYNAMODB_LISTINGS_TABLE}
   # DynamoDB - Users
   UsersDynamoDbTable:
     Type: AWS::DynamoDB::Table

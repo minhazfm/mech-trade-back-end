@@ -20,18 +20,6 @@ Resources:
         - Name: email
           Required: true
           Mutable: true
-        - Name: clinic
-          Mutable: true
-          AttributeDataType: String
-          StringAttributeConstraints:
-            MinLength: 3
-            MaxLength: 256
-        - Name: type
-          Mutable: true
-          AttributeDataType: String
-          StringAttributeConstraints:
-            MinLength: 3
-            MaxLength: 256
   # Cognito - Client
   CognitoUserPoolClient:
     Type: AWS::Cognito::UserPoolClient

@@ -1,4 +1,4 @@
-import { ApiCallback, ApiContext, ApiEvent, ApiHandler, CreateUser } from '@interfaces/interfaces';
+import { ApiCallback, ApiContext, ApiEvent, ApiHandler, CreateUser } from '../interfaces/interfaces';
 import { ResponseBuilder } from '../shared/response-builder';
 import { UserService } from './user.service'
 
@@ -10,14 +10,15 @@ export class UserController {
         try {
             const body = JSON.parse(event.body as string);
             
-            if (!body.name) {
+            if (!body.firstName || !body.lastName) {
                 throw new Error('Missing name attribute');
             }
     
             const newUser: CreateUser = {
+                firstName: body.firstName,
                 isOnline: false,
-                name: body.name,
-                userId: event.requestContext.identity.cognitoIdentityId ?? ''
+                lastName: body.lastName,
+                userId: event.requestContext.identity.cognitoIdentityId
             };
     
             await this.userService.putUser(newUser);

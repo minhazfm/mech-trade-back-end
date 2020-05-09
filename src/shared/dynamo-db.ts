@@ -1,4 +1,4 @@
-import { CONSTANTS } from '../shared/constants';
+import { CONSTANTS } from './constants';
 import { DynamoDB } from 'aws-sdk';
 import { DocumentClient } from 'aws-sdk/clients/dynamodb';
 
@@ -26,8 +26,10 @@ export const dynamodb = {
 //     private _client: DynamoDB.DocumentClient;
 
 //     constructor() {
-//         this._client = new DynamoDB.DocumentClient(CONSTANTS.DYNAMODB_OPTIONS);
+//         this._client = new DynamoDB.DocumentClient(options);
 //     }
+
+//     public putItem = (params: DocumentClient.PutItemInput) => this._client.put(params).promise();
 
 //     static getInstance(): DynamoDbService {
 //         if (!DynamoDbService.instance) {
@@ -35,21 +37,6 @@ export const dynamodb = {
 //         }
 
 //         return DynamoDbService.instance;
-//     }
-
-//     async createUser(user: CreateUser) {
-//         const userParams: DocumentClient.PutItemInput = {
-//             TableName: CONSTANTS.DYNAMODB_USERS_TABLE ?? '',
-//             Item: {
-//                 createdAt: Date.now(),
-//                 isAvailable: user.isAvailable,
-//                 isOnline: user.isOnline,
-//                 name: user.isAvailable,
-//                 userId: user.userId
-//             }
-//         };
-
-//         return await this._client.put(userParams).promise();
 //     }
 
 // }
