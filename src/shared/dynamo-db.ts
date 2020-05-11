@@ -4,7 +4,7 @@ import { DocumentClient } from 'aws-sdk/clients/dynamodb';
 
 // import { CreateUser } from '@interfaces/interfaces';
 
-const _client = new DynamoDB.DocumentClient(CONSTANTS.DYNAMODB_OPTIONS);
+const _client = new DynamoDB.DocumentClient(CONSTANTS.IS_OFFLINE ? { region: 'localhost', endpoint: 'http://localhost:8000' } : CONSTANTS.DYNAMODB_OPTIONS);
 
 const deleteItem = (params: DocumentClient.DeleteItemInput) => _client.delete(params).promise();
 const getItem = (params: DocumentClient.GetItemInput) => _client.get(params).promise();

@@ -10,8 +10,8 @@ Resources:
           AttributeType: S
         - AttributeName: country_city
           AttributeType: S
-        - AttributeName: createdAt
-          AttributeType: S
+        # - AttributeName: createdAt
+        #   AttributeType: S
         - AttributeName: sellerId
           AttributeType: S
         # - AttributeName: userId
@@ -26,7 +26,7 @@ Resources:
             - AttributeName: listingId
               KeyType: RANGE
           Projection:
-            NonKeyAttributes: [sellerId, subTitle, title, description, city, country, currentPrice]
+            NonKeyAttributes: [sellerId, subTitle, title, description, city, country, currentPrice, createdAt]
             ProjectionType: INCLUDE
         # Get listings for a seller
         - IndexName: ${self:provider.environment.DYNAMODB_LISTINGS_TABLE_GSI2}

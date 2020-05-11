@@ -8,9 +8,11 @@ export type ApiHandler = (event: ApiEvent, context: ApiContext, callback: ApiCal
 export type ApiResponse = ProxyResult;
 
 export interface CreateListing {
+    city: string;
+    country: string;
     currentPrice: string;
     description: string;
-    listingId: string;
+    // listingId: string;
     subTitle: string;
     title: string;
     userId: string;
