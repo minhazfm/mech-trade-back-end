@@ -1,38 +1,88 @@
 Resources:
-  # DynamoDB - Listings
-  ListingsDynamoDbTable:
+  DynamoDbTable:
     Type: AWS::DynamoDB::Table
     DeletionPolicy: Delete
     Properties:
       AttributeDefinitions:
         - AttributeName: listingId
           AttributeType: S
+        - AttributeName: sortKey
+          AttributeType: S
+        - AttributeName: country_city
+          AttributeType: S
+        - AttributeName: createdAt
+          AttributeType: S
+        - AttributeName: sellerId
+          AttributeType: S
+        # - AttributeName: userId
+        #   AttributeType: S
       BillingMode: PAY_PER_REQUEST
+      GlobalSecondaryIndexes:
+        # Get listings by location
+        - IndexName: ${self:provider.environment.DYNAMODB_LISTINGS_TABLE_GSI1}
+          KeySchema:
+            - AttributeName: country_city
+              KeyType: HASH
+            - AttributeName: listingId
+              KeyType: RANGE
+          Projection:
+            NonKeyAttributes: [sellerId, subTitle, title, description, city, country, currentPrice]
+            ProjectionType: INCLUDE
+        # Get listings for a seller
+        - IndexName: ${self:provider.environment.DYNAMODB_LISTINGS_TABLE_GSI2}
+          KeySchema:
+            - AttributeName: sellerId
+              KeyType: HASH
+            - AttributeName: listingId
+              KeyType: RANGE
+          Projection:
+            NonKeyAttributes: [subTitle, title, description, city, country, currentPrice]
+            ProjectionType: INCLUDE
+        # Get comments for a listing
+        # TODO
       KeySchema:
         - AttributeName: listingId
           KeyType: HASH
+        - AttributeName: sortKey
+          KeyType: RANGE
       SSESpecification:
         SSEEnabled: true
       TableName: ${self:provider.environment.DYNAMODB_LISTINGS_TABLE}
-  # DynamoDB - Users
-  UsersDynamoDbTable:
-    Type: AWS::DynamoDB::Table
-    DeletionPolicy: Delete
-    Properties:
-      AttributeDefinitions:
-        - AttributeName: userId
-          AttributeType: S
-      BillingMode: PAY_PER_REQUEST
-      # GlobalSecondaryIndexes:
-      #   - IndexName: ${self:provider.environment.DYNAMODB_USERS_TYPE_GSI}
-      #     KeySchema:
-      #       - AttributeName: itemId
-      #         KeyType: HASH
-      #     Projection:
-      #       ProjectionType: ALL
-      KeySchema:
-        - AttributeName: userId
-          KeyType: HASH
-      SSESpecification:
-        SSEEnabled: true
-      TableName: ${self:provider.environment.DYNAMODB_USERS_TABLE}
+
+  # # DynamoDB - Listings
+  # ListingsDynamoDbTable:
+  #   Type: AWS::DynamoDB::Table
+  #   DeletionPolicy: Delete
+  #   Properties:
+  #     AttributeDefinitions:
+  #       - AttributeName: listingId
+  #         AttributeType: S
+  #     BillingMode: PAY_PER_REQUEST
+  #     KeySchema:
+  #       - AttributeName: listingId
+  #         KeyType: HASH
+  #     SSESpecification:
+  #       SSEEnabled: true
+  #     TableName: ${self:provider.environment.DYNAMODB_LISTINGS_TABLE}
+  # # DynamoDB - Users
+  # UsersDynamoDbTable:
+  #   Type: AWS::DynamoDB::Table
+  #   DeletionPolicy: Delete
+  #   Properties:
+  #     AttributeDefinitions:
+  #       - AttributeName: userId
+  #         AttributeType: S
+  #     BillingMode: PAY_PER_REQUEST
+  #     # GlobalSecondaryIndexes:
+  #     #   - IndexName: ${self:provider.environment.DYNAMODB_USERS_TYPE_GSI}
+  #     #     KeySchema:
+  #     #       - AttributeName: itemId
+  #     #         KeyType: HASH
+  #     #     Projection:
+  #     #       ProjectionType: ALL
+  #     KeySchema:
+  #       - AttributeName: userId
+  #         KeyType: HASH
+  #     SSESpecification:
+  #       SSEEnabled: true
+  #     TableName: ${self:provider.environment.DYNAMODB_USERS_TABLE}

@@ -35,8 +35,10 @@ provider:
       Ref: CognitoUserPoolClient
     CORS_ORIGIN: ${self:custom.corsOrigin}
     DYNAMODB_LISTINGS_TABLE: ${self:service}-listings-table-${opt:stage, self:provider.stage}
-    DYNAMODB_USERS_TABLE: ${self:service}-users-table-${opt:stage, self:provider.stage}
-    DYNAMODB_USERS_TYPE_GSI: ${self:service}-users-table-type-gsi-${opt:stage, self:provider.stage}
+    DYNAMODB_LISTINGS_TABLE_GSI1: ${self:service}-listings-table-gsi1-${opt:stage, self:provider.stage}
+    DYNAMODB_LISTINGS_TABLE_GSI2: ${self:service}-listings-table-gsi2-${opt:stage, self:provider.stage}
+    # DYNAMODB_USERS_TABLE: ${self:service}-users-table-${opt:stage, self:provider.stage}
+    # DYNAMODB_USERS_TYPE_GSI: ${self:service}-users-table-type-gsi-${opt:stage, self:provider.stage}
     ENVIRONMENT: ${opt:stage, self:provider.stage}
   name: aws
   runtime: nodejs12.x
