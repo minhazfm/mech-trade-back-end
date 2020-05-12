@@ -4,17 +4,23 @@ Resources:
     DeletionPolicy: Delete
     Properties:
       AttributeDefinitions:
-        - AttributeName: listingId
+        - AttributeName: listing_id
           AttributeType: S
-        - AttributeName: sortKey
+        - AttributeName: sort_key
           AttributeType: S
+        - AttributeName: category
+          AttributeType: S
+        # - AttributeName: comment_id
+        #   AttributeType: S
         - AttributeName: country_city
           AttributeType: S
-        # - AttributeName: createdAt
-        #   AttributeType: S
-        - AttributeName: sellerId
+        - AttributeName: partition_key
           AttributeType: S
-        # - AttributeName: userId
+        # - AttributeName: purchase_id
+        #   AttributeType: S
+        - AttributeName: seller_id
+          AttributeType: S
+        # - AttributeName: user_id
         #   AttributeType: S
       BillingMode: PAY_PER_REQUEST
       GlobalSecondaryIndexes:
@@ -23,66 +29,66 @@ Resources:
           KeySchema:
             - AttributeName: country_city
               KeyType: HASH
-            - AttributeName: listingId
+            - AttributeName: listing_id
               KeyType: RANGE
           Projection:
-            NonKeyAttributes: [sellerId, subTitle, title, description, city, country, currentPrice, createdAt]
+            NonKeyAttributes: [
+              category,
+              city,
+              country,
+              created_at,
+              current_price,
+              description,
+              seller_id,
+              sub_title,
+              title
+            ]
             ProjectionType: INCLUDE
-        # Get listings for a seller
+        # Get listings by category
         - IndexName: ${self:provider.environment.DYNAMODB_LISTINGS_TABLE_GSI2}
           KeySchema:
-            - AttributeName: sellerId
+            - AttributeName: category
               KeyType: HASH
-            - AttributeName: listingId
+            - AttributeName: listing_id
               KeyType: RANGE
           Projection:
-            NonKeyAttributes: [subTitle, title, description, city, country, currentPrice]
+            NonKeyAttributes: [
+              city,
+              country,
+              created_at,
+              current_price,
+              description,
+              seller_id,
+              sub_title,
+              title
+            ]
             ProjectionType: INCLUDE
-        # Get comments for a listing
+        # Get listings for a seller
+        - IndexName: ${self:provider.environment.DYNAMODB_LISTINGS_TABLE_GSI3}
+          KeySchema:
+            - AttributeName: seller_id
+              KeyType: HASH
+            - AttributeName: listing_id
+              KeyType: RANGE
+          Projection:
+            NonKeyAttributes: [
+              category,
+              city,
+              country,
+              created_at,
+              current_price,
+              description,
+              sub_title,
+              title
+            ]
+            ProjectionType: INCLUDE
+        # Get purchases for a buyer
         # TODO
       KeySchema:
-        - AttributeName: listingId
+        - AttributeName: partition_key
           KeyType: HASH
-        - AttributeName: sortKey
+        - AttributeName: sort_key
           KeyType: RANGE
       SSESpecification:
         SSEEnabled: true
       TableName: ${self:provider.environment.DYNAMODB_LISTINGS_TABLE}
-
-  # # DynamoDB - Listings
-  # ListingsDynamoDbTable:
-  #   Type: AWS::DynamoDB::Table
-  #   DeletionPolicy: Delete
-  #   Properties:
-  #     AttributeDefinitions:
-  #       - AttributeName: listingId
-  #         AttributeType: S
-  #     BillingMode: PAY_PER_REQUEST
-  #     KeySchema:
-  #       - AttributeName: listingId
-  #         KeyType: HASH
-  #     SSESpecification:
-  #       SSEEnabled: true
-  #     TableName: ${self:provider.environment.DYNAMODB_LISTINGS_TABLE}
-  # # DynamoDB - Users
-  # UsersDynamoDbTable:
-  #   Type: AWS::DynamoDB::Table
-  #   DeletionPolicy: Delete
-  #   Properties:
-  #     AttributeDefinitions:
-  #       - AttributeName: userId
-  #         AttributeType: S
-  #     BillingMode: PAY_PER_REQUEST
-  #     # GlobalSecondaryIndexes:
-  #     #   - IndexName: ${self:provider.environment.DYNAMODB_USERS_TYPE_GSI}
-  #     #     KeySchema:
-  #     #       - AttributeName: itemId
-  #     #         KeyType: HASH
-  #     #     Projection:
-  #     #       ProjectionType: ALL
-  #     KeySchema:
-  #       - AttributeName: userId
-  #         KeyType: HASH
-  #     SSESpecification:
-  #       SSEEnabled: true
-  #     TableName: ${self:provider.environment.DYNAMODB_USERS_TABLE}

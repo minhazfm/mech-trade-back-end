@@ -34,6 +34,7 @@ export class ListingController {
             // }
     
             const newListing: CreateListing = {
+                category: 'keyboards',
                 city: 'Orlando',
                 country: 'United States',
                 currentPrice: '400',

@@ -7,7 +7,21 @@ export type ApiEvent = APIGatewayEvent;
 export type ApiHandler = (event: ApiEvent, context: ApiContext, callback: ApiCallback) => void;
 export type ApiResponse = ProxyResult;
 
+export interface Listing {
+    category: string;
+    city: string;
+    country: string;
+    createdAt: string;
+    currentPrice: string;
+    description: string;
+    id: string;
+    sellerId: string;
+    subTitle: string;
+    title: string;
+};
+
 export interface CreateListing {
+    category: string;
     city: string;
     country: string;
     currentPrice: string;

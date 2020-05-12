@@ -13,19 +13,20 @@ export class ListingService {
         const params = {
             TableName: CONSTANTS.DYNAMODB_LISTINGS_TABLE,
             Item: {
+                category: 'cat_' + listing.category,
                 city: listing.city,
                 country: listing.country,
-                currentPrice: listing.currentPrice,
+                current_price: listing.currentPrice,
                 description: listing.description,
-                subTitle: listing.subTitle,
+                sub_title: listing.subTitle,
                 title: listing.title,
 
                 // Main properties
                 country_city: listing.country + '_' + listing.city,
-                createdAt: Date.now(),
-                listingId: uuid.v4(),
-                sellerId: 'owner' + '_' + listing.userId,
-                sortKey: 'listing'
+                created_at: Date.now(),
+                partition_key: 'listing_' + uuid.v4(),
+                seller_id: 'seller_' + listing.userId,
+                sort_key: 'listing'
             }
         };
 

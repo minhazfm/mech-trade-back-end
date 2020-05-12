@@ -11,8 +11,14 @@ custom:
       port: 8000
       inMemory: true
       migrate: true
+      seed: true
     migration:
       dir: offline/migrations
+    seed:
+      test:
+        sources:
+          - table: ${self:provider.environment.DYNAMODB_LISTINGS_TABLE}
+            sources: [offline/seed.json]
   webpack:
     webpackConfig: ./webpack.config.js
     includeModules: true
