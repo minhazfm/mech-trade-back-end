@@ -7,6 +7,20 @@ export type ApiEvent = APIGatewayEvent;
 export type ApiHandler = (event: ApiEvent, context: ApiContext, callback: ApiCallback) => void;
 export type ApiResponse = ProxyResult;
 
+export interface CreateListingComment {
+    listingId: string;
+    message: string;
+    userId: string;
+};
+
+export interface ListingComment {
+    createdAt: number;
+    id: string;
+    listingId: string;
+    message: string;
+    userId: string;
+};
+
 export interface Listing {
     category: string;
     city: string;

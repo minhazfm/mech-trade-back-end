@@ -58,6 +58,17 @@ package:
     - "node_modules/**"
 
 functions:
+  createComment:
+    description: Creates a new comment
+    name: lambda-${self:service}-createComment-${opt:stage, self:provider.stage}
+    handler: src/handler.createComment
+    events:
+      - http:
+          authorizer: aws_iam
+          cors: true
+          method: post
+          operationId: createComment
+          path: create/comment
   createListing:
     description: Creates a new listing
     name: lambda-${self:service}-createListing-${opt:stage, self:provider.stage}

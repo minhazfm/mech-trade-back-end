@@ -1,4 +1,4 @@
-import { ApiCallback, ApiContext, ApiEvent, ApiHandler, CreateListing, Listing } from '../interfaces/interfaces';
+import { ApiCallback, ApiContext, ApiEvent, ApiHandler, CreateListing, Listing, ListingComment, CreateListingComment } from '../interfaces/interfaces';
 import { ListingService } from './listing.service';
 import { ResponseBuilder } from '../shared/response-builder';
 
@@ -24,6 +24,28 @@ export class ListingController {
     //     // Throw the errors if you choose
     //     return missingProperties.length === 0;
     // };
+
+    public createComment: ApiHandler = async (event: ApiEvent, _context: ApiContext, callback: ApiCallback) => {
+        const body: string = JSON.parse(event.body);
+
+        const newComment: CreateListingComment = {
+            listingId: 'listing_b7e95bca-89a0-4135-b12a-ea01d226e084',
+            message: 'This is an amazing deal! Can I get more pictures?',
+            userId: event.requestContext.identity.cognitoIdentityId
+        };
+
+        return this.listingService.createComment(newComment)
+            .then((response: ListingComment) => {
+                const result = {
+                    success: true,
+                    result: response
+                };
+                return ResponseBuilder.success(result, callback); 
+            })
+            .catch(error => {
+                return ResponseBuilder.serverError(error, callback); 
+            });
+    };
 
     public createListing: ApiHandler = async (event: ApiEvent, _context: ApiContext, callback: ApiCallback) => {
         const body = JSON.parse(event.body as string);
@@ -57,17 +79,28 @@ export class ListingController {
 
         const listingId = event.queryStringParameters.id;
 
-        return this.listingService.getListing(listingId)
-            .then((response: Listing) => {
+        return this.listingService.getAllListings()
+            .then((response: any) => {
                 const result = {
                     success: true,
-                    result: response
+                    result: response.Items
                 };
                 return ResponseBuilder.success(result, callback); 
             })
             .catch(error => {
                 return ResponseBuilder.serverError(error, callback); 
             });
+        // return this.listingService.getListing(listingId)
+        //     .then((response: Listing) => {
+        //         const result = {
+        //             success: true,
+        //             result: response
+        //         };
+        //         return ResponseBuilder.success(result, callback); 
+        //     })
+        //     .catch(error => {
+        //         return ResponseBuilder.serverError(error, callback); 
+        //     });
     };
 
 }

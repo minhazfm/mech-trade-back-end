@@ -1,4 +1,5 @@
 export {
+  createComment,
   createListing,
   getListing
 } from './listing/listing';

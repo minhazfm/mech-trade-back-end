@@ -1,4 +1,4 @@
-import { CreateListing, Listing } from '../interfaces/interfaces';
+import { CreateListing, CreateListingComment, Listing, ListingComment } from '../interfaces/interfaces';
 import { CONSTANTS } from '../shared/constants';
 import { dynamodb } from '../shared/dynamo-db';
 import * as uuid from 'uuid';
@@ -8,6 +8,43 @@ export class ListingService {
     public constructor() {
 
     }
+
+    public async createComment(comment: CreateListingComment) {
+        const newComment: ListingComment = {
+            createdAt: Date.now(),
+            id: 'comment_' + uuid.v4(),
+            listingId: comment.listingId,
+            message: comment.message,
+            userId: comment.userId
+        };
+
+        const params = {
+            TableName: CONSTANTS.DYNAMODB_LISTINGS_TABLE,
+            Item: {
+                created_at: newComment.createdAt,
+                message: newComment.message,
+                partition_key: newComment.listingId,
+                sort_key: newComment.id,
+                user_id: newComment.userId,
+            }
+        };
+
+        await dynamodb.putItem(params);
+        return newComment;
+    };
+
+    public async getAllListings(): Promise<any> {
+        const params = {
+            TableName: CONSTANTS.DYNAMODB_LISTINGS_TABLE,
+            // IndexName: CONSTANTS.DYNAMODB_LISTINGS_TABLE_GSI1,
+            KeyConditionExpression: 'partition_key = :partition_key',
+            ExpressionAttributeValues: {
+                ':sort_key': 'listing'
+            }
+        };
+
+        return await dynamodb.queryItem(params);
+    };
 
     public async getListing(id: string): Promise<Listing> {
         const params = {
