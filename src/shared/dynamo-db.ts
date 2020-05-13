@@ -10,6 +10,7 @@ const deleteItem = (params: DocumentClient.DeleteItemInput) => _client.delete(pa
 const getItem = (params: DocumentClient.GetItemInput) => _client.get(params).promise();
 const putItem = (params: DocumentClient.PutItemInput) => _client.put(params).promise();
 const queryItem = (params: DocumentClient.QueryInput) => _client.query(params).promise();
+const scanItems = (params: DocumentClient.ScanInput) => _client.scan(params).promise();
 const updateItem = (params: DocumentClient.UpdateItemInput) => _client.update(params).promise();
 
 export const dynamodb = {
@@ -17,6 +18,7 @@ export const dynamodb = {
     getItem,
     putItem,
     queryItem,
+    scanItems,
     updateItem
 };
 

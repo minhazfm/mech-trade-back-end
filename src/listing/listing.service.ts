@@ -9,6 +9,21 @@ export class ListingService {
 
     }
 
+    private mapJsonToListing(json: any): Listing {
+        return {
+            category: json.category,
+            city: json.city,
+            country: json.country,
+            createdAt: json.created_at,
+            currentPrice: json.current_price,
+            description: json.description,
+            id: json.partition_key,
+            sellerId: json.seller_id,
+            subTitle: json.sub_title,
+            title: json.title
+        };
+    };
+
     public async createComment(comment: CreateListingComment) {
         const newComment: ListingComment = {
             createdAt: Date.now(),
@@ -33,17 +48,24 @@ export class ListingService {
         return newComment;
     };
 
-    public async getAllListings(): Promise<any> {
+    public async getAllListings(): Promise<Array<Listing>> {
         const params = {
             TableName: CONSTANTS.DYNAMODB_LISTINGS_TABLE,
-            // IndexName: CONSTANTS.DYNAMODB_LISTINGS_TABLE_GSI1,
-            KeyConditionExpression: 'partition_key = :partition_key',
-            ExpressionAttributeValues: {
-                ':sort_key': 'listing'
-            }
+            FilterExpression: 'sort_key = :listing',
+            ExpressionAttributeValues: { ':listing' : 'listing' }
         };
 
-        return await dynamodb.queryItem(params);
+        // const params = {
+        //     TableName: CONSTANTS.DYNAMODB_LISTINGS_TABLE,
+        //     // IndexName: CONSTANTS.DYNAMODB_LISTINGS_TABLE_GSI1,
+        //     KeyConditionExpression: 'partition_key = :Hpartition_key',
+        //     // ExpressionAttributeValues: {
+        //     //     ':Hpartition_key': 'listing_b7e95bca-89a0-4135-b12a-ea01d226e084'
+        //     // }
+        // };
+
+        const listings = await dynamodb.scanItems(params);
+        return listings.Items?.map(item => { return this.mapJsonToListing(item); }) ?? [];
     };
 
     public async getListing(id: string): Promise<Listing> {
@@ -57,18 +79,7 @@ export class ListingService {
 
         const result = await dynamodb.getItem(params);
         if (result.Item) {
-            return {
-                category: result.Item.category,
-                city: result.Item.city,
-                country: result.Item.country,
-                createdAt: result.Item.created_at,
-                currentPrice: result.Item.current_price,
-                description: result.Item.description,
-                id: result.Item.id,
-                sellerId: result.Item.seller_id,
-                subTitle: result.Item.sub_title,
-                title: result.Item.title
-            };
+            return this.mapJsonToListing(result.Item);
         }
         else {
             throw new Error('Listing not found')

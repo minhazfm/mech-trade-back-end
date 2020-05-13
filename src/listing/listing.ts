@@ -7,4 +7,5 @@ const listingController: ListingController = new ListingController(listingServic
 
 export const createComment: ApiHandler = listingController.createComment;
 export const createListing: ApiHandler = listingController.createListing;
+export const getAllListings: ApiHandler = listingController.getAllListings;
 export const getListing: ApiHandler = listingController.getListing;

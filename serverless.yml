@@ -80,6 +80,17 @@ functions:
           method: post
           operationId: createListing
           path: create/listing
+  getAllListings:
+    description: Get all listings
+    name: lambda-${self:service}-getAllListings-${opt:stage, self:provider.stage}
+    handler: src/handler.getAllListings
+    events:
+      - http:
+          authorizer: aws_iam
+          cors: true
+          method: get
+          operationId: getAllListings
+          path: get/listings
   getListing:
     description: Get a listing using id
     name: lambda-${self:service}-getListing-${opt:stage, self:provider.stage}

@@ -74,33 +74,34 @@ export class ListingController {
             });
     };
 
-    public getListing: ApiHandler = async (event: ApiEvent, _context: ApiContext, callback: ApiCallback) => {
-        // const body = JSON.parse(event.body as string);
-
-        const listingId = event.queryStringParameters.id;
-
+    public getAllListings: ApiHandler = async (_event: ApiEvent, _context: ApiContext, callback: ApiCallback) => {
         return this.listingService.getAllListings()
-            .then((response: any) => {
+            .then((response: Array<Listing>) => {
                 const result = {
                     success: true,
-                    result: response.Items
+                    result: response
                 };
                 return ResponseBuilder.success(result, callback); 
             })
             .catch(error => {
                 return ResponseBuilder.serverError(error, callback); 
             });
-        // return this.listingService.getListing(listingId)
-        //     .then((response: Listing) => {
-        //         const result = {
-        //             success: true,
-        //             result: response
-        //         };
-        //         return ResponseBuilder.success(result, callback); 
-        //     })
-        //     .catch(error => {
-        //         return ResponseBuilder.serverError(error, callback); 
-        //     });
+    };
+
+    public getListing: ApiHandler = async (event: ApiEvent, _context: ApiContext, callback: ApiCallback) => {
+        const listingId = event.queryStringParameters.id;
+
+        return this.listingService.getListing(listingId)
+            .then((response: Listing) => {
+                const result = {
+                    success: true,
+                    result: response
+                };
+                return ResponseBuilder.success(result, callback); 
+            })
+            .catch(error => {
+                return ResponseBuilder.serverError(error, callback); 
+            });
     };
 
 }
