@@ -11,7 +11,7 @@ export interface Listing {
     category: string;
     city: string;
     country: string;
-    createdAt: string;
+    createdAt: number;
     currentPrice: string;
     description: string;
     id: string;

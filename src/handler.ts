@@ -1,5 +1,6 @@
 export {
-  createListing
+  createListing,
+  getListing
 } from './listing/listing';
 
 export {

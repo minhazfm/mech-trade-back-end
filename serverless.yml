@@ -69,6 +69,17 @@ functions:
           method: post
           operationId: createListing
           path: create/listing
+  getListing:
+    description: Get a listing using id
+    name: lambda-${self:service}-getListing-${opt:stage, self:provider.stage}
+    handler: src/handler.getListing
+    events:
+      - http:
+          authorizer: aws_iam
+          cors: true
+          method: get
+          operationId: getListing
+          path: get/listing
   createUser:
     description: Creates a new user
     name: lambda-${self:service}-createUser-${opt:stage, self:provider.stage}
