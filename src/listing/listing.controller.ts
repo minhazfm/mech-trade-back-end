@@ -26,11 +26,15 @@ export class ListingController {
     // };
 
     public createComment: ApiHandler = async (event: ApiEvent, _context: ApiContext, callback: ApiCallback) => {
-        const body: string = JSON.parse(event.body);
+        const body: any = JSON.parse(event.body);
+
+        if (!body.listingId || !body.message || body.listingId === '' || body.message === '') {
+            return ResponseBuilder.serverError(new Error('Missing required body JSON parameters: listingId and message'), callback);
+        }
 
         const newComment: CreateListingComment = {
-            listingId: 'listing_b7e95bca-89a0-4135-b12a-ea01d226e084',
-            message: 'This is an amazing deal! Can I get more pictures?',
+            listingId: body.listingId,
+            message: body.message,
             userId: event.requestContext.identity.cognitoIdentityId
         };
 
@@ -48,16 +52,26 @@ export class ListingController {
     };
 
     public createListing: ApiHandler = async (event: ApiEvent, _context: ApiContext, callback: ApiCallback) => {
-        const body = JSON.parse(event.body as string);
+        const body: any = JSON.parse(event.body);
+
+        if (!body.category || 
+            !body.city || 
+            !body.country ||
+            !body.currentPrice ||
+            !body.description ||
+            !body.subTitle ||
+            !body.title) {
+            return ResponseBuilder.serverError(new Error('Missing required body JSON parameters'), callback);
+        }
 
         const newListing: CreateListing = {
-            category: 'keyboards',
-            city: 'Orlando',
-            country: 'United States',
-            currentPrice: '400',
-            description: 'Brand new, never been used. Originally bought on Reddit, only used for a few weeks.',
-            subTitle: 'Won\'t last long!',
-            title: 'New SINGA V3, Blood Orange',
+            category: body.category,
+            city: body.city,
+            country: body.country,
+            currentPrice: body.currentPrice,
+            description: body.description,
+            subTitle: body.subTitle,
+            title: body.title,
             userId: event.requestContext.identity.cognitoIdentityId
         };
 

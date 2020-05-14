@@ -58,6 +58,7 @@ Resources:
               created_at,
               current_price,
               description,
+              is_available,
               seller_id,
               sub_title,
               title
@@ -78,6 +79,7 @@ Resources:
               created_at,
               current_price,
               description,
+              is_available,
               sub_title,
               title
             ]

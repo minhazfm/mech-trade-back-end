@@ -18,6 +18,7 @@ export class ListingService {
             currentPrice: json.current_price,
             description: json.description,
             id: json.partition_key,
+            isAvailable: json.is_available,
             sellerId: json.seller_id,
             subTitle: json.sub_title,
             title: json.title
@@ -87,23 +88,9 @@ export class ListingService {
     };
 
     public async putListing(listing: CreateListing): Promise<Listing> {
-        let newListing: Listing = {
-            category: 'cat_' + listing.category,
-            city: listing.city,
-            country: listing.country,
-            createdAt: Date.now(),
-            currentPrice: listing.currentPrice,
-            description: listing.description,
-            id: 'listing_' + uuid.v4(),
-            sellerId: 'seller_' + listing.userId,
-            subTitle: listing.subTitle,
-            title: listing.title
-        };
-
         const params = {
             TableName: CONSTANTS.DYNAMODB_LISTINGS_TABLE,
             Item: {
-                category: 'cat_' + listing.category,
                 city: listing.city,
                 country: listing.country,
                 current_price: listing.currentPrice,
@@ -111,9 +98,11 @@ export class ListingService {
                 sub_title: listing.subTitle,
                 title: listing.title,
 
-                // Main properties
+                // Modified properties
+                category: 'cat_' + listing.category,
                 country_city: listing.country + '_' + listing.city,
                 created_at: Date.now(),
+                is_available: true,
                 partition_key: 'listing_' + uuid.v4(),
                 seller_id: 'seller_' + listing.userId,
                 sort_key: 'listing'
@@ -121,7 +110,7 @@ export class ListingService {
         };
 
         await dynamodb.putItem(params);
-        return newListing;
+        return this.mapJsonToListing(params.Item);
     };
 
 }
