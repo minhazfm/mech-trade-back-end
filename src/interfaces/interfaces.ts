@@ -49,15 +49,16 @@ export interface CreateListing {
 
 export interface CreateUser {
     firstName: string;
-    isOnline: boolean;
     lastName: string;
     userId: string;
 };
 
-export interface GetUser {
-    createdAt: string;
+export interface User {
+    buyerId: string;
+    createdAt: number;
     firstName: string;
     isOnline: boolean;
     lastName: string;
+    sellerId: string;
     userId: string;
 };
