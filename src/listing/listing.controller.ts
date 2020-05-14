@@ -25,6 +25,19 @@ export class ListingController {
     //     return missingProperties.length === 0;
     // };
 
+    public addListingImages: ApiHandler = async (_event: ApiEvent, _context: ApiContext, callback: ApiCallback) => {
+        return this.listingService.addImages()
+            .then((response: boolean) => {
+                const result = {
+                    success: response
+                };
+                return ResponseBuilder.success(result, callback); 
+            })
+            .catch(error => {
+                return ResponseBuilder.serverError(error, callback); 
+            });
+    };
+
     public createComment: ApiHandler = async (event: ApiEvent, _context: ApiContext, callback: ApiCallback) => {
         const body: any = JSON.parse(event.body);
 
@@ -103,7 +116,7 @@ export class ListingController {
     };
 
     public getListing: ApiHandler = async (event: ApiEvent, _context: ApiContext, callback: ApiCallback) => {
-        const listingId = event.queryStringParameters.id;
+        const listingId = event.pathParameters.id;
 
         return this.listingService.getListing(listingId)
             .then((response: Listing) => {

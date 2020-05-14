@@ -1,4 +1,5 @@
 export {
+  addListingImages,
   createComment,
   createListing,
   getAllListings,

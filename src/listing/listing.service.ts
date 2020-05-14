@@ -1,6 +1,7 @@
 import { CreateListing, CreateListingComment, Listing, ListingComment } from '../interfaces/interfaces';
 import { CONSTANTS } from '../shared/constants';
 import { dynamodb } from '../shared/dynamo-db';
+import { S3 } from 'aws-sdk';
 import * as uuid from 'uuid';
 
 export class ListingService {
@@ -23,6 +24,24 @@ export class ListingService {
             subTitle: json.sub_title,
             title: json.title
         };
+    };
+
+    public async addImages() {
+        const s3 = new S3({
+            s3ForcePathStyle: true,
+            accessKeyId: CONSTANTS.S3_ACCESS_KEY_ID,
+            secretAccessKey: CONSTANTS.S3_SECRET_ACCESS_KEY,
+            endpoint: 'http://localhost:4569'
+        });
+
+        return s3.putObject({
+            Bucket: CONSTANTS.S3_BUCKET,
+            Key: '1234',
+            Body: new Buffer('abcd')
+        })
+            .promise()
+            .then(() => true)
+            .catch(() => false);
     };
 
     public async createComment(comment: CreateListingComment) {
@@ -91,6 +110,7 @@ export class ListingService {
         const params = {
             TableName: CONSTANTS.DYNAMODB_LISTINGS_TABLE,
             Item: {
+                category: listing.category,
                 city: listing.city,
                 country: listing.country,
                 current_price: listing.currentPrice,
@@ -99,7 +119,6 @@ export class ListingService {
                 title: listing.title,
 
                 // Modified properties
-                category: 'cat_' + listing.category,
                 country_city: listing.country + '_' + listing.city,
                 created_at: Date.now(),
                 is_available: true,

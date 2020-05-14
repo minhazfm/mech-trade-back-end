@@ -27,6 +27,7 @@ custom:
 plugins:
   - serverless-dotenv-plugin
   - serverless-dynamodb-local
+  - serverless-s3-local
   - serverless-offline
   - serverless-pseudo-parameters
   - serverless-webpack
@@ -47,6 +48,7 @@ provider:
     # DYNAMODB_USERS_TABLE: ${self:service}-users-table-${opt:stage, self:provider.stage}
     # DYNAMODB_USERS_TYPE_GSI: ${self:service}-users-table-type-gsi-${opt:stage, self:provider.stage}
     ENVIRONMENT: ${opt:stage, self:provider.stage}
+    S3_BUCKET: ${self:service}-s3-bucket-${opt:stage, self:provider.stage}
   name: aws
   runtime: nodejs12.x
   region: us-east-2
@@ -58,6 +60,17 @@ package:
     - "node_modules/**"
 
 functions:
+  addListingImages:
+    description: Adds images to a listing
+    name: lambda-${self:service}-addListingImages-${opt:stage, self:provider.stage}
+    handler: src/handler.addListingImages
+    events:
+      - http:
+          authorizer: aws_iam
+          cors: true
+          method: post
+          operationId: addListingImages
+          path: listing/{id}
   createComment:
     description: Creates a new comment
     name: lambda-${self:service}-createComment-${opt:stage, self:provider.stage}
@@ -101,7 +114,7 @@ functions:
           cors: true
           method: get
           operationId: getListing
-          path: get/listing
+          path: get/listing/{id}
   createUser:
     description: Creates a new user
     name: lambda-${self:service}-createUser-${opt:stage, self:provider.stage}
@@ -120,4 +133,4 @@ resources:
   # DynamoDB
   - ${file(src/services/dynamodb.yml)}
   # S3
-  # - ${file(services/s3.yml)}
+  - ${file(src/services/s3.yml)}
