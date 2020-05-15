@@ -35,6 +35,12 @@ export interface Listing {
     title: string;
 };
 
+export interface ListingImage {
+    contentType: string;
+    data: any;
+    fileName: string;
+};
+
 export interface CreateListing {
     category: string;
     city: string;

@@ -1,10 +1,11 @@
-import { ApiCallback, ApiContext, ApiEvent, ApiHandler, CreateListing, Listing, ListingComment, CreateListingComment } from '../interfaces/interfaces';
+import { ApiCallback, ApiContext, ApiEvent, ApiHandler, CreateListing, Listing, ListingComment, CreateListingComment, ListingImage } from '../interfaces/interfaces';
 import { ListingService } from './listing.service';
 import { ResponseBuilder } from '../shared/response-builder';
 
 import * as Busboy from 'busboy';
 import { promises as fs } from 'fs';
 import { join } from 'path';
+import * as uuid from 'uuid';
 
 export class ListingController {
 
@@ -40,24 +41,22 @@ export class ListingController {
         }, {});
         console.log('Headers ', modifiedHeaders);
 
+        let images: Array<ListingImage> = [];
+
         let parseResult = {
             files: []
         };
 
-        const result = new Promise((resolve, reject) => {
+        const processData: Promise<Array<ListingImage>> = new Promise((resolve, reject) => {
             const busboy = new Busboy({ headers: modifiedHeaders });
 
             busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
                 console.log('Once?');
-
                 file.on('data', data => {
-
-                    return fs.writeFile(join(process.cwd(), 'src', 'listing', 'test.jpeg'), data, 'binary')
-                        .then(() => { resolve() });
-                    parseResult.files.push({
-                        file: data,
-                        fileName: filename,
-                        contentType: mimetype
+                    images.push({
+                        contentType: mimetype,
+                        data: data,
+                        fileName: 'img_' + uuid.v1() + '.jpeg'
                     });
                 });
             });
@@ -73,20 +72,22 @@ export class ListingController {
             busboy.on('error', error => reject(`Parse error: ${error}`));
             busboy.on('finish', () => {
                 // event.body = parseResult;
-                resolve(parseResult);
+                resolve(images);
             });
         
             busboy.write(event.body, event.isBase64Encoded ? 'base64' : 'binary');
             busboy.end();
-
-            // setTimeout(() => {
-            //     resolve();
-            // }, 3000);
         });
-        await result;
-        // const cwd = process.cwd();
-        // await fs.writeFile(join(cwd, 'src', 'listing', 'test.jpeg'), event.body);
-        // console.log('See ', parseResult.files.length)
+
+        const result = await processData;
+
+        const allImagesPromises = result.map(eachFile => {
+            return fs.writeFile(join(process.cwd(), 'src', 'listing', eachFile.fileName), eachFile.data, 'binary')
+        })
+
+        await Promise.all(allImagesPromises);
+        // await fs.writeFile(join(process.cwd(), 'src', 'listing', 'test.jpeg'), data, 'binary')
+                        // .then(() => { resolve() });
 
         const listingId: string = event.pathParameters.id;
 
