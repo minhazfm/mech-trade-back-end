@@ -34,6 +34,8 @@ plugins:
 
 provider:
   apiGateway:
+    binaryMediaTypes:
+      - '*/*'
     minimumCompressionSize: 1024 # Enable gzip compression for responses > 1 KB
   environment:
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
@@ -49,6 +51,7 @@ provider:
     # DYNAMODB_USERS_TYPE_GSI: ${self:service}-users-table-type-gsi-${opt:stage, self:provider.stage}
     ENVIRONMENT: ${opt:stage, self:provider.stage}
     S3_BUCKET: ${self:service}-s3-bucket-${opt:stage, self:provider.stage}
+    # WEBSOCKET_API_ENDPOINT: !Join ['', ['https://', !Ref WebsocketsApi, '.execute-api.', '${opt:region, self:provider.region}', '.amazonaws.com/', '${opt:stage, self:provider.stage}/']]
   name: aws
   runtime: nodejs12.x
   region: us-east-2
@@ -70,7 +73,7 @@ functions:
           cors: true
           method: post
           operationId: addListingImages
-          path: listing/{id}
+          path: listing/{id}/images
   createComment:
     description: Creates a new comment
     name: lambda-${self:service}-createComment-${opt:stage, self:provider.stage}

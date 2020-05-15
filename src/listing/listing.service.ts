@@ -26,22 +26,28 @@ export class ListingService {
         };
     };
 
-    public async addImages() {
+    public async addImages(listingId: string) {
         const s3 = new S3({
             s3ForcePathStyle: true,
             accessKeyId: CONSTANTS.S3_ACCESS_KEY_ID,
             secretAccessKey: CONSTANTS.S3_SECRET_ACCESS_KEY,
-            endpoint: 'http://localhost:4569'
+            endpoint: CONSTANTS.S3_ENDPOINT
         });
 
         return s3.putObject({
             Bucket: CONSTANTS.S3_BUCKET,
-            Key: '1234',
+            Key: listingId + '/img_' + uuid.v1(),
             Body: new Buffer('abcd')
         })
             .promise()
-            .then(() => true)
-            .catch(() => false);
+            .then(response => {
+                console.log('Response: ', response.ETag);
+                return true
+            })
+            .catch(error => {
+                console.log('Error: ', error.message);
+                return false
+            });
     };
 
     public async createComment(comment: CreateListingComment) {

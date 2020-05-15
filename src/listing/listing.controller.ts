@@ -2,6 +2,10 @@ import { ApiCallback, ApiContext, ApiEvent, ApiHandler, CreateListing, Listing, 
 import { ListingService } from './listing.service';
 import { ResponseBuilder } from '../shared/response-builder';
 
+import * as Busboy from 'busboy';
+import { promises as fs } from 'fs';
+import { join } from 'path';
+
 export class ListingController {
 
     constructor(private readonly listingService: ListingService) { }
@@ -25,8 +29,68 @@ export class ListingController {
     //     return missingProperties.length === 0;
     // };
 
-    public addListingImages: ApiHandler = async (_event: ApiEvent, _context: ApiContext, callback: ApiCallback) => {
-        return this.listingService.addImages()
+    public addListingImages: ApiHandler = async (event: ApiEvent, _context: ApiContext, callback: ApiCallback) => {
+        // const test = multipart.parse(event, false)
+        // console.log('Test ', test);
+
+        let headers = event.headers;
+        const modifiedHeaders = Object.keys(headers).reduce((newHeaders, key) => {
+            newHeaders[key.toLowerCase()] = headers[key];
+            return newHeaders;
+        }, {});
+        console.log('Headers ', modifiedHeaders);
+
+        let parseResult = {
+            files: []
+        };
+
+        const result = new Promise((resolve, reject) => {
+            const busboy = new Busboy({ headers: modifiedHeaders });
+
+            busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
+                console.log('Once?');
+
+                file.on('data', data => {
+
+                    return fs.writeFile(join(process.cwd(), 'src', 'listing', 'test.jpeg'), data, 'binary')
+                        .then(() => { resolve() });
+                    parseResult.files.push({
+                        file: data,
+                        fileName: filename,
+                        contentType: mimetype
+                    });
+                });
+            });
+
+            busboy.on('field', (fieldname, value) => {
+                try {
+                    parseResult[fieldname] = JSON.parse(value);
+                } catch (err) {
+                    parseResult[fieldname] = value;
+                }
+            });
+
+            busboy.on('error', error => reject(`Parse error: ${error}`));
+            busboy.on('finish', () => {
+                // event.body = parseResult;
+                resolve(parseResult);
+            });
+        
+            busboy.write(event.body, event.isBase64Encoded ? 'base64' : 'binary');
+            busboy.end();
+
+            // setTimeout(() => {
+            //     resolve();
+            // }, 3000);
+        });
+        await result;
+        // const cwd = process.cwd();
+        // await fs.writeFile(join(cwd, 'src', 'listing', 'test.jpeg'), event.body);
+        // console.log('See ', parseResult.files.length)
+
+        const listingId: string = event.pathParameters.id;
+
+        return this.listingService.addImages(listingId)
             .then((response: boolean) => {
                 const result = {
                     success: response
