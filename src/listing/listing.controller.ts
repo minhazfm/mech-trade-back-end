@@ -2,7 +2,10 @@ import { ApiCallback, ApiContext, ApiEvent, ApiHandler, CreateListing, Listing, 
 import { ListingService } from './listing.service';
 import { ResponseBuilder } from '../shared/response-builder';
 
+import { CONSTANTS } from '../shared/constants';
 import * as Busboy from 'busboy';
+import { S3 } from 'aws-sdk';
+
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import * as uuid from 'uuid';
@@ -48,7 +51,13 @@ export class ListingController {
         };
 
         const processData: Promise<Array<ListingImage>> = new Promise((resolve, reject) => {
-            const busboy = new Busboy({ headers: modifiedHeaders });
+            const busboy = new Busboy({ 
+                headers: modifiedHeaders, 
+                limits: {
+                    files: 5,
+                    fileSize: 750000 // In bytes, 750Kb
+                } 
+            });
 
             busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
                 console.log('Once?');
@@ -79,28 +88,49 @@ export class ListingController {
             busboy.end();
         });
 
-        const result = await processData;
+        const processDataResult = await processData;
 
-        const allImagesPromises = result.map(eachFile => {
-            return fs.writeFile(join(process.cwd(), 'src', 'listing', eachFile.fileName), eachFile.data, 'binary')
-        })
-
-        await Promise.all(allImagesPromises);
-        // await fs.writeFile(join(process.cwd(), 'src', 'listing', 'test.jpeg'), data, 'binary')
-                        // .then(() => { resolve() });
+        const s3 = new S3({
+            s3ForcePathStyle: true,
+            accessKeyId: CONSTANTS.S3_ACCESS_KEY_ID,
+            secretAccessKey: CONSTANTS.S3_SECRET_ACCESS_KEY,
+            endpoint: CONSTANTS.S3_ENDPOINT
+        });
 
         const listingId: string = event.pathParameters.id;
 
-        return this.listingService.addImages(listingId)
-            .then((response: boolean) => {
+        const allImagesPromises = processDataResult.map(eachFile => {
+            return s3.upload({
+                ACL: 'public-read',
+                Bucket: CONSTANTS.S3_BUCKET,
+                Key: listingId + '/' + eachFile.fileName,
+                Body: eachFile.data
+            }).promise()
+            // return fs.writeFile(join(process.cwd(), 'src', 'listing', eachFile.fileName), eachFile.data, 'binary')
+        })
+
+        await Promise.all(allImagesPromises)
+            .then((response: Array<S3.ManagedUpload.SendData>) => {
                 const result = {
-                    success: response
+                    success: true,
+                    imageUrls: response.map(value => value.Location)
                 };
+                // const imageUrls: Array<string> = response.map(value => value.Location)
                 return ResponseBuilder.success(result, callback); 
-            })
-            .catch(error => {
-                return ResponseBuilder.serverError(error, callback); 
             });
+        // await fs.writeFile(join(process.cwd(), 'src', 'listing', 'test.jpeg'), data, 'binary')
+                        // .then(() => { resolve() });
+
+        // return this.listingService.addImages(listingId)
+        //     .then((response: boolean) => {
+        //         const result = {
+        //             success: response
+        //         };
+                // return ResponseBuilder.success(result, callback); 
+            // })
+            // .catch(error => {
+            //     return ResponseBuilder.serverError(error, callback); 
+            // });
     };
 
     public createComment: ApiHandler = async (event: ApiEvent, _context: ApiContext, callback: ApiCallback) => {
