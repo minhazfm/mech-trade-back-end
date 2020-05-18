@@ -1,7 +1,8 @@
-import { CreateListing, CreateListingComment, Listing, ListingComment } from '../interfaces/interfaces';
+import { ApiEvent, CreateListing, CreateListingComment, Listing, ListingComment, ListingImage } from '../interfaces/interfaces';
 import { CONSTANTS } from '../shared/constants';
 import { dynamodb } from '../shared/dynamo-db';
 import { S3 } from 'aws-sdk';
+import * as Busboy from 'busboy';
 import * as uuid from 'uuid';
 
 export class ListingService {
@@ -112,6 +113,55 @@ export class ListingService {
         }
     };
 
+    public processImageData(event: ApiEvent): Promise<Array<ListingImage>> {
+        let headers = event.headers;
+        const modifiedHeaders = Object.keys(headers).reduce((newHeaders, key) => {
+            newHeaders[key.toLowerCase()] = headers[key];
+            return newHeaders;
+        }, {});
+
+        let images: Array<ListingImage> = [];
+
+        return new Promise((resolve, reject) => {
+            const busboy = new Busboy({ 
+                headers: modifiedHeaders, 
+                limits: {
+                    files: 5,
+                    fileSize: 750000 // In bytes, 750Kb
+                } 
+            });
+
+            busboy.on('file', (_fieldname, file, _filename, _encoding, mimetype) => {
+                file.on('data', data => {
+                    images.push({
+                        contentType: mimetype,
+                        data: data,
+                        fileName: 'img_' + uuid.v1() + '.jpeg'
+                    });
+                });
+            });
+
+            // busboy.on('field', (fieldname, value) => {
+            //     try {
+            //         parseResult[fieldname] = JSON.parse(value);
+            //     } catch (err) {
+            //         parseResult[fieldname] = value;
+            //     }
+            // });
+
+            busboy.on('error', error => {
+                reject(`Processing image data error: ${error}`)
+            });
+
+            busboy.on('finish', () => {
+                resolve(images);
+            });
+        
+            busboy.write(event.body, event.isBase64Encoded ? 'base64' : 'binary');
+            busboy.end();
+        });
+    };
+
     public async putListing(listing: CreateListing): Promise<Listing> {
         const params = {
             TableName: CONSTANTS.DYNAMODB_LISTINGS_TABLE,
@@ -136,6 +186,34 @@ export class ListingService {
 
         await dynamodb.putItem(params);
         return this.mapJsonToListing(params.Item);
+    };
+
+    public async saveImages(images: Array<ListingImage>, listingId: string) {
+        const s3 = new S3({
+            s3ForcePathStyle: true,
+            accessKeyId: CONSTANTS.S3_ACCESS_KEY_ID,
+            secretAccessKey: CONSTANTS.S3_SECRET_ACCESS_KEY,
+            endpoint: CONSTANTS.S3_ENDPOINT
+        });
+
+        const allImagePromises = images.map(eachFile => {
+            return s3.upload({
+                ACL: 'public-read',
+                Bucket: CONSTANTS.S3_BUCKET,
+                Key: listingId + '/' + eachFile.fileName,
+                Body: eachFile.data
+            }).promise()
+        });
+
+        try {
+            return await Promise.all(allImagePromises)
+                .then((response: Array<S3.ManagedUpload.SendData>) => {
+                    return response.map(value => value.Location);
+                });
+        }
+        catch (error) {
+            throw new Error(`Save image error: ${error}`)
+        }
     };
 
 }
