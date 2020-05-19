@@ -7,6 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "@paypal/checkout-server-sdk": "^1.0.2",
     "aws-sdk": "^2.671.0",
     "axios": "^0.19.2",
     "busboy": "^0.3.1",

@@ -129,6 +129,18 @@ functions:
           method: post
           operationId: createUser
           path: create/user
+  # Order and Payment APIs
+  createOrder:
+    description: Create an order
+    name: lambda-${self:service}-test-${opt:stage, self:provider.stage}
+    handler: src/handler.createOrder
+    events:
+      - http:
+          authorizer: aws_iam
+          cors: true
+          method: post
+          operationId: createOrder
+          path: order
 
 resources:
   # Cognito

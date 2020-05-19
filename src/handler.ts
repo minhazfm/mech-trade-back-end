@@ -7,5 +7,9 @@ export {
 } from './listing/listing';
 
 export {
+  createOrder
+} from './payment/payment';
+
+export {
   createUser
 } from './user/user';

@@ -59,6 +59,12 @@ export interface CreateUser {
     userId: string;
 };
 
+export interface PPAccessToken {
+    accessToken: string;
+    expiresIn: number;
+    tokenType: string;
+};
+
 export interface User {
     buyerId: string;
     createdAt: number;

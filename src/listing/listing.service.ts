@@ -35,20 +35,19 @@ export class ListingService {
             endpoint: CONSTANTS.S3_ENDPOINT
         });
 
-        return s3.putObject({
-            Bucket: CONSTANTS.S3_BUCKET,
-            Key: listingId + '/img_' + uuid.v1(),
-            Body: new Buffer('abcd')
-        })
-            .promise()
-            .then(response => {
-                console.log('Response: ', response.ETag);
-                return true
-            })
-            .catch(error => {
-                console.log('Error: ', error.message);
-                return false
-            });
+        try {
+            const response = await s3.putObject({
+                Bucket: CONSTANTS.S3_BUCKET,
+                Key: listingId + '/img_' + uuid.v1(),
+                Body: new Buffer('abcd')
+            }).promise();
+            console.log('Response: ', response.ETag);
+            return true;
+        }
+        catch (error) {
+            console.log('Error: ', error.message);
+            return false;
+        }
     };
 
     public async createComment(comment: CreateListingComment) {
@@ -206,10 +205,8 @@ export class ListingService {
         });
 
         try {
-            return await Promise.all(allImagePromises)
-                .then((response: Array<S3.ManagedUpload.SendData>) => {
-                    return response.map(value => value.Location);
-                });
+            const response = await Promise.all(allImagePromises);
+            return response.map(value => value.Location);
         }
         catch (error) {
             throw new Error(`Save image error: ${error}`)
