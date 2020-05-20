@@ -1,6 +1,7 @@
 import { ApiEvent, CreateListing, CreateListingComment, Listing, ListingComment, ListingImage } from '../interfaces/interfaces';
 import { CONSTANTS } from '../shared/constants';
 import { dynamodb } from '../shared/dynamo-db';
+import { DocumentClient } from 'aws-sdk/clients/dynamodb';
 import { S3 } from 'aws-sdk';
 import * as Busboy from 'busboy';
 import * as uuid from 'uuid';
@@ -20,6 +21,7 @@ export class ListingService {
             currentPrice: json.current_price,
             description: json.description,
             id: json.partition_key,
+            imageUrls: json.image_urls ?? [],
             isAvailable: json.is_available,
             sellerId: json.seller_id,
             subTitle: json.sub_title,
@@ -187,6 +189,22 @@ export class ListingService {
         return this.mapJsonToListing(params.Item);
     };
 
+    private async updateListingImages(imageUrls: Array<string>, listingId: string) {
+        const params: DocumentClient.UpdateItemInput = {
+            TableName: CONSTANTS.DYNAMODB_LISTINGS_TABLE,
+            Key: {
+                partition_key: listingId,
+                sort_key: 'listing'
+            },
+            ExpressionAttributeValues: {
+                ':IU': imageUrls
+            },
+            UpdateExpression: 'set image_urls = :IU'
+        };
+
+        return await dynamodb.updateItem(params);
+    };
+
     public async saveImages(images: Array<ListingImage>, listingId: string) {
         const s3 = new S3({
             s3ForcePathStyle: true,
@@ -205,8 +223,10 @@ export class ListingService {
         });
 
         try {
-            const response = await Promise.all(allImagePromises);
-            return response.map(value => value.Location);
+            const saveImages = await Promise.all(allImagePromises);
+            const saveImageUrls = saveImages.map(value => value.Location);
+            await this.updateListingImages(saveImageUrls, listingId);
+            return saveImageUrls;
         }
         catch (error) {
             throw new Error(`Save image error: ${error}`)

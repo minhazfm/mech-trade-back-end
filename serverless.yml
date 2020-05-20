@@ -84,7 +84,7 @@ functions:
           cors: true
           method: post
           operationId: createComment
-          path: create/comment
+          path: comment
   createListing:
     description: Creates a new listing
     name: lambda-${self:service}-createListing-${opt:stage, self:provider.stage}
@@ -95,7 +95,7 @@ functions:
           cors: true
           method: post
           operationId: createListing
-          path: create/listing
+          path: listing
   getAllListings:
     description: Get all listings
     name: lambda-${self:service}-getAllListings-${opt:stage, self:provider.stage}
@@ -106,7 +106,7 @@ functions:
           cors: true
           method: get
           operationId: getAllListings
-          path: get/listings
+          path: listings
   getListing:
     description: Get a listing using id
     name: lambda-${self:service}-getListing-${opt:stage, self:provider.stage}
@@ -117,7 +117,7 @@ functions:
           cors: true
           method: get
           operationId: getListing
-          path: get/listing/{id}
+          path: listing/{id}
   createUser:
     description: Creates a new user
     name: lambda-${self:service}-createUser-${opt:stage, self:provider.stage}
@@ -128,8 +128,19 @@ functions:
           cors: true
           method: post
           operationId: createUser
-          path: create/user
+          path: user
   # Order and Payment APIs
+  captureOrder:
+    description: Capture an order
+    name: lambda-${self:service}-test-${opt:stage, self:provider.stage}
+    handler: src/handler.captureOrder
+    events:
+      - http:
+          authorizer: aws_iam
+          cors: true
+          method: post
+          operationId: captureOrder
+          path: order/capture/{id}
   createOrder:
     description: Create an order
     name: lambda-${self:service}-test-${opt:stage, self:provider.stage}
@@ -140,7 +151,7 @@ functions:
           cors: true
           method: post
           operationId: createOrder
-          path: order
+          path: order/listing/{id}
 
 resources:
   # Cognito

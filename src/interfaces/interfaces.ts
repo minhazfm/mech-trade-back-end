@@ -29,6 +29,7 @@ export interface Listing {
     currentPrice: string;
     description: string;
     id: string;
+    imageUrls: string[];
     isAvailable: boolean;
     sellerId: string;
     subTitle: string;

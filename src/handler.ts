@@ -7,6 +7,7 @@ export {
 } from './listing/listing';
 
 export {
+  captureOrder,
   createOrder
 } from './payment/payment';
 
