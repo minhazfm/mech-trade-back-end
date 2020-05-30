@@ -48,7 +48,7 @@ export interface CreateListing {
     country: string;
     currentPrice: string;
     description: string;
-    // listingId: string;
+    images?: ListingImage[];
     subTitle: string;
     title: string;
     userId: string;

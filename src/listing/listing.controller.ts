@@ -70,34 +70,26 @@ export class ListingController {
     };
 
     public createListing: ApiHandler = async (event: ApiEvent, _context: ApiContext, callback: ApiCallback) => {
-        const body: any = JSON.parse(event.body);
-
-        if (!body.category || 
-            !body.city || 
-            !body.country ||
-            !body.currentPrice ||
-            !body.description ||
-            !body.subTitle ||
-            !body.title) {
-            return ResponseBuilder.serverError(new Error('Missing required body JSON parameters'), callback);
-        }
-
+        const listingData: CreateListing = await this.listingService.processFormData(event);
+        
         const newListing: CreateListing = {
-            category: body.category,
-            city: body.city,
-            country: body.country,
-            currentPrice: body.currentPrice,
-            description: body.description,
-            subTitle: body.subTitle,
-            title: body.title,
+            category: listingData.category,
+            city: listingData.city,
+            country: listingData.country,
+            currentPrice: listingData.currentPrice,
+            description: listingData.description,
+            subTitle: listingData.subTitle,
+            title: listingData.title,
             userId: event.requestContext.identity.cognitoIdentityId
         };
 
-        return this.listingService.putListing(newListing)
-            .then((response: Listing) => {
+        const createdListing: Listing = await this.listingService.putListing(newListing);
+        await this.listingService.saveImages(listingData.images, createdListing.id)
+            .then((imageArray: string[]) => {
+                createdListing.imageUrls = imageArray;
                 const result = {
                     success: true,
-                    result: response
+                    result: createdListing
                 };
                 return ResponseBuilder.success(result, callback); 
             })
@@ -105,6 +97,43 @@ export class ListingController {
                 return ResponseBuilder.serverError(error, callback); 
             });
     };
+
+    // public createListing: ApiHandler = async (event: ApiEvent, _context: ApiContext, callback: ApiCallback) => {
+    //     const body: any = JSON.parse(event.body);
+
+    //     if (!body.category || 
+    //         !body.city || 
+    //         !body.country ||
+    //         !body.currentPrice ||
+    //         !body.description ||
+    //         !body.subTitle ||
+    //         !body.title) {
+    //         return ResponseBuilder.serverError(new Error('Missing required body JSON parameters'), callback);
+    //     }
+
+    //     const newListing: CreateListing = {
+    //         category: body.category,
+    //         city: body.city,
+    //         country: body.country,
+    //         currentPrice: body.currentPrice,
+    //         description: body.description,
+    //         subTitle: body.subTitle,
+    //         title: body.title,
+    //         userId: event.requestContext.identity.cognitoIdentityId
+    //     };
+
+    //     return this.listingService.putListing(newListing)
+    //         .then((response: Listing) => {
+    //             const result = {
+    //                 success: true,
+    //                 result: response
+    //             };
+    //             return ResponseBuilder.success(result, callback); 
+    //         })
+    //         .catch(error => {
+    //             return ResponseBuilder.serverError(error, callback); 
+    //         });
+    // };
 
     public getAllListings: ApiHandler = async (_event: ApiEvent, _context: ApiContext, callback: ApiCallback) => {
         return this.listingService.getAllListings()

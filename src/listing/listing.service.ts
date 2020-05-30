@@ -114,6 +114,53 @@ export class ListingService {
         }
     };
 
+    public processFormData(event: ApiEvent): Promise<CreateListing> {
+        let headers = event.headers;
+        const modifiedHeaders = Object.keys(headers).reduce((newHeaders, key) => {
+            newHeaders[key.toLowerCase()] = headers[key];
+            return newHeaders;
+        }, {});
+
+        let newListing: any = {
+            images: []
+        };
+
+        return new Promise((resolve, reject) => {
+            const busboy = new Busboy({ 
+                headers: modifiedHeaders, 
+                limits: {
+                    files: 5,
+                    fileSize: 750000 // In bytes, 750Kb
+                } 
+            });
+
+            busboy.on('file', (_fieldname, file, _filename, _encoding, mimetype) => {
+                file.on('data', data => {
+                    newListing.images.push({
+                        contentType: mimetype,
+                        data: data,
+                        fileName: 'img_' + uuid.v1() + '.jpeg'
+                    });
+                });
+            });
+
+            busboy.on('field', (fieldname, value) => {
+                newListing[fieldname] = value;
+            });
+
+            busboy.on('error', (error: any) => {
+                reject(`Processing image data error: ${error}`)
+            });
+
+            busboy.on('finish', () => {
+                resolve(newListing);
+            });
+        
+            busboy.write(event.body, event.isBase64Encoded ? 'base64' : 'binary');
+            busboy.end();
+        });
+    };
+
     public processImageData(event: ApiEvent): Promise<Array<ListingImage>> {
         let headers = event.headers;
         const modifiedHeaders = Object.keys(headers).reduce((newHeaders, key) => {
@@ -150,7 +197,7 @@ export class ListingService {
             //     }
             // });
 
-            busboy.on('error', error => {
+            busboy.on('error', (error: any) => {
                 reject(`Processing image data error: ${error}`)
             });
 
