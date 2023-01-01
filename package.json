@@ -28,9 +28,9 @@
     "serverless-pseudo-parameters": "^2.5.0",
     "serverless-s3-local": "^0.6.1",
     "serverless-webpack": "^5.2.0",
-    "ts-loader": "^5.4.5",
+    "ts-loader": "^9.4.2",
     "typescript": "^3.8.3",
-    "webpack": "^4.29.0",
+    "webpack": "^5.75.0",
     "webpack-node-externals": "^1.7.2"
   },
   "author": "The serverless webpack authors (https://github.com/elastic-coders/serverless-webpack)",
